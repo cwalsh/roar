@@ -63,8 +63,13 @@ module Roar
 
       private
         def handle_response(response)
-          document = response.body
-          deserialize(document)
+          results = nil
+          response.on_complete { results = deserialize(response.body) }
+          if response.finished?
+            results
+          else
+            lambda { results }
+          end
         end
 
         def http
